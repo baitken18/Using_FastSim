@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct 18 12:23:45 2023
-
-@author: baitk
+This is the script that makes the mixing angle plots
 """
 import sys 
 import os
@@ -64,5 +62,6 @@ def main(fv_files = ['../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.3
     
     
 if __name__ == '__main__':
+    #Replace fv_files with a list of whichever files you want
     fv_files = glob.glob('../SimulationData/ForMixingPlot/RHN_Ue*.csv')
     main(fv_files)
