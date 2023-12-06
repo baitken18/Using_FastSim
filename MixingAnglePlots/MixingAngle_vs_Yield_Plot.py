@@ -20,7 +20,7 @@ from Helpers.functions import *
 sys.path.insert(0,'../FastSim_Additions/')
 from Additions import initiate_detector
 
-def get_ctaus(mass, mixing, length_file = '../SimulationData/RHNctauUe.dat'):
+def get_ctaus(mass, mixing_sq, length_file = '../SimulationData/RHNctauUe.dat'):
     '''
     Converts mass to ctau for a given mixing angle (input mixing angle squared)
 
@@ -28,7 +28,7 @@ def get_ctaus(mass, mixing, length_file = '../SimulationData/RHNctauUe.dat'):
     ----------
     mass : float
         Mass of the RHN in GeV
-    mixing : np.ndarray
+    mixing_sq : np.ndarray
         Squared Mixing Angles to use
     length_file : str, optional
         Conversion from mass to length for U = 1. The default is '../SimulationData/RHNctauUe.dat'.
@@ -151,7 +151,7 @@ def do_sim(fv_path, lengths, mass, detector_benchmark, particle_number = 1000):
                     
     return decay_in_detector, in_detector
     
-def make_plot(mixing, num_decays, num_events, filename = 'MixingAngle_decay_probability.png'):
+def make_plot(mixing_sq, num_decays, num_events, filename = 'MixingAngle_decay_probability.png'):
     '''
     Makes a "histogram" of event rate vs mixing angle
 
@@ -170,7 +170,7 @@ def make_plot(mixing, num_decays, num_events, filename = 'MixingAngle_decay_prob
 
     '''
     fig, ax = plt.subplots(1,1, figsize = (6,4), constrained_layout = True)
-    ax.step(mixing, num_decays / num_events)
+    ax.step(mixing_sq, num_decays / num_events)
     ax.set_title('Decay Probability in MATHUSLA')
     ax.set_xlabel(r'$|U_e|^2$')
     ax.set_ylabel(r'$\frac{N_{decay}}{N_{enter}}$')
@@ -187,8 +187,8 @@ def main(fv_file = '../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.316
     #Particle Information
     fv_path = os.path.join(os.getcwd(), fv_file)
     mass = float(fv_file.split('_')[-1][:-4])
-    mixing = np.logspace(-1,-12, 30) 
-    lengths = get_ctaus(mass = mass, mixing = mixing)
+    mixing_sq = np.logspace(-1,-12, 30) 
+    lengths = get_ctaus(mass = mass, mixing_sq = mixing_sq)
     
     #Detector Information and Boundaries
     detector_benchmark = initiate_detector()
@@ -198,7 +198,7 @@ def main(fv_file = '../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.316
     print(num_decays)
     print(num_events)
 
-    make_plot(mixing, num_decays, num_events, image_file)
+    make_plot(mixing_sq, num_decays, num_events, image_file)
     
 if __name__ == '__main__':
     main()

@@ -28,15 +28,15 @@ def calculate_decays(fv_file = '../SimulationData/RHN_Ue_LLPweight4vectorBmesonl
     #Particle Information
     fv_path = os.path.join(os.getcwd(), fv_file)
     mass = float(fv_file.split('_')[-1][:-4])
-    mixing = np.logspace(-1,-12, 50) 
-    lengths = get_ctaus(mass = mass, mixing = mixing)
+    mixing_sq = np.logspace(-1,-12, 50) 
+    lengths = get_ctaus(mass = mass, mixing_sq = mixing_sq)
     
     #Detector Information and Boundaries
     detector_benchmark = initiate_detector()
 
     num_decays, num_events = do_sim(fv_path, lengths, mass, detector_benchmark, particle_number)
     
-    return mass, mixing, num_decays, num_events
+    return mass, mixing_sq, num_decays, num_events
     
 def format_plot(ax):
     ax.set_title('Decay Probability in MATHUSLA')
@@ -54,8 +54,8 @@ def main(fv_files = ['../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.3
     format_plot(ax)
     
     for fv_file in fv_files:
-        mass, mixing, num_decays, num_events = calculate_decays(fv_file, length_file, particle_number)
-        ax.step(mixing, num_decays / num_events, label = f'{mass:.3g}')
+        mass, mixing_sq, num_decays, num_events = calculate_decays(fv_file, length_file, particle_number)
+        ax.step(mixing_sq, num_decays / num_events, label = f'{mass:.3g}')
         
     ax.legend(frameon = True, title = 'RHN Mass (GeV)')
     plt.savefig(image_file)

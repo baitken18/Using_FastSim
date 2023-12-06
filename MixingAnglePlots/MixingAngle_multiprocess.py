@@ -28,8 +28,8 @@ from Additions import initiate_detector
 file = '../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.316228.csv'
 fv_path = os.path.join(os.getcwd(), file)
 mass = float(file.split('_')[-1][:-4])
-mixing = np.logspace(-0.5,-7, 100) 
-lengths = get_ctaus(mass = mass, mixing = mixing)
+mixing_sq = np.logspace(-0.5,-7, 100) 
+lengths = get_ctaus(mass = mass, mixing_sq = mixing_sq)
 
 detector_benchmark = initiate_detector()
 phi_min, phi_max, theta_min, theta_max = get_detector_angles(detector_benchmark)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     
     num_decays, num_events = multi_pros(lengths)
     
-    make_plot(mixing, num_decays, num_events)
+    make_plot(mixing_sq, num_decays, num_events)
     
     
     

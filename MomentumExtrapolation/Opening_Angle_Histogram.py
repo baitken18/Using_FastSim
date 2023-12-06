@@ -57,7 +57,7 @@ def organize_sim_info(fv_file, length_file, product_file, param_card_file = '../
     return [fv_path, prod_path, ctau, mass, detector_benchmark, 50000]
 
 
-def isolate_usable_3p(data, hit_threshold):
+def isolate_usable_3p(data, hit_threshold = 4):
     '''
     Gives events which have a defined opening angle
 
