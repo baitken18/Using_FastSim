@@ -25,7 +25,7 @@ class sim_pack:
         self.length_path = os.path.join(os.getcwd(), length_file)
         self.mass = float(fv_file.split('_')[-1][:-4])
         self.mixing_range = (int(mixing_range[0]), int(mixing_range[1]))
-        self.mixing_res = 20
+        self.mixing_res = 15
         self.sim_size = sim_size
     
     def get_mixing_sq(self):
@@ -37,9 +37,15 @@ class sim_pack:
         ctaus = ad.get_ctaus(mass = self.mass, mixing_sq = mixing_sq, length_file = self.length_path)
         return ctaus
     
+    def get_flavour(self):
+        return self.length_path.split('.')[-2][-2:]
+    
+    def get_parent(self):
+        return self.fv_path.split('vector')[-1].split('list')[0]
+    
     def get_outfile(self, mixing_sq):
         '''Outfile name for a dataset based on parameter space'''
-        return f'sim_{self.mass}_{mixing_sq}.pickle'
+        return f'sim_{self.get_flavour()}_{self.get_parent()}_{self.mass}_{mixing_sq}.pickle'
 
 def make_sim_packs(param_file):
     '''Creates list of sim_pack objects based off of the param_file passed
@@ -66,8 +72,9 @@ def single_do_sim(sim_pack, mixing_sq):
     ctau = sim_pack.get_proper_lifetime(mixing_sq)
         
     #Takes the four vectors from events and reweights points
-    all_llp_4p = np.array(hf.read_vectors(sim_pack.fv_path, sim_pack.sim_size))[:,1:]
-    all_llp_weights = np.array(hf.read_vectors(sim_pack.fv_path, sim_pack.sim_size))[:,0]
+    all_llps = np.array(hf.read_vectors(sim_pack.fv_path, sim_pack.sim_size))
+    all_llp_4p = all_llps[:,1:]
+    all_llp_weights = all_llps[:,0]
     all_llp_weights = ad.rescale_weights(all_llp_weights, phi_min, phi_max, mixing_sq, sim_pack.fv_path)
     
     #Loops through four vectors and their weights

@@ -26,7 +26,7 @@ def fv_and_prod(flavour):
     
     for fv in fv_files:
         for prod in prod_files:
-            print(extract_mass(fv))
+            
             if extract_mass(fv) == extract_mass(prod):
                 pairs.append([fv,prod])
     
@@ -38,16 +38,14 @@ def main(flavour = None):
         _, flavour = sys.argv
         
     length_file = get_length_file(flavour)
-    print(length_file)
     
     fv_prod_pairs = fv_and_prod(flavour)
-    print(fv_prod_pairs)
     
     outfile = f'param_file_{flavour}.txt'
     with open(outfile, 'w') as f:
     
         for pair in fv_prod_pairs:
-            line = f'{pair[0]} {pair[1]} {length_file} (-12,-1) 20000\n'
+            line = f'{pair[0]} {pair[1]} {length_file} (-12,-1) -1\n'
             f.write(line)
 
 if __name__ == '__main__':
