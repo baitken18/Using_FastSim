@@ -17,6 +17,9 @@ sys.path.insert(0, '../../MATHUSLA_FastSim/')
 import DetectorSimulation.llp_gun_new as lg
 import Helpers.functions as hf
 
+sys.path.insert(0, '../MixingAnglePlots')
+from MixingAngle_vs_Yield_Plot import decay_in_MATHUSLA
+
 class sim_pack:
     '''Sim_pack is used to parameterize each simulation'''
     def __init__(self, fv_file:str, prod_file:str, length_file:str, mixing_range:tuple, sim_size:int):
@@ -91,6 +94,8 @@ def single_do_sim(sim_pack, mixing_sq):
             pack = hf.get_weight(rotated_four_p, sim_pack.mass, ctau, detector_benchmark)
             
             if pack is not None:
+                #This does NOT enforce that particle decays in MATHUSLA
+                #Could use the decay_in_MATHUSLA function to check if desired
                 p_decay, p_pos, boost = pack
                 
                 #This step gets the vertex object
@@ -149,5 +154,28 @@ def main(param_file = None, cores = 4):
     p.map(multi_do_sim, sim_packs)
 
 if __name__ == '__main__':
-    main()
+    SMS_sim = sim_pack('../../AllSimData/MATHUSLA_LLPfiles_SMS/SMS_LLPweight4vectorBmesonlist_mS_3.06185.csv',
+                        '../../AllSimData/MATHUSLA_LLPfiles_SMS/gg_3.06185_formatted.txt',
+                        '../../AllSimData/MATHUSLA_LLPfiles_SMS/SMS_lifetime_mSGeV_ctaumeters.csv',
+                        (10**0.016378937069540613, 10**0.02), -1)
+    start = timeit.default_timer()
+    vertices = single_do_sim(SMS_sim, 10**-10)
+    end = timeit.default_timer()
+    print(end - start)
+    data = eds.to_data_structure(vertices)
+    
+    
+    '''
+    test_sim = sim_pack('../../AllSimData/MATHUSLA_LLPfiles_RHN_Ue/All_RHN_Ue_LLPweight4vectors_from_BDWZtau/RHN_Ue_LLPweight4vectorBmesonlist_mN_1.62066.csv',
+                        '../../AllSimData/MATHUSLA_LLPfiles_RHN_Ue/RHN_Ue_hadronic_decays_geant_formatted/vN_Ntoall_nocharm_1.62066.txt',
+                        '../../AllSimData/MATHUSLA_LLPfiles_RHN_Ue/RHNctauUe.dat',
+                        (10**0.016378937069540613, 10**0.02), -1)
+    
+    start = timeit.default_timer()
+    vertices = single_do_sim(test_sim, 0.016378937069540613)
+    data = eds.to_data_structure(vertices)
+    end = timeit.default_timer()
+    print(end - start)
+    '''
+    #main()
 
