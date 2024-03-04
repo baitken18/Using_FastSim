@@ -44,7 +44,10 @@ def add_curve(data_column, weights, ax):
     h.fill(data_column[photons_involved], weight = weights[photons_involved])
 
     
-    integral = np.sum(h.view().value) * np.diff(h.axes[0].edges)[0]
+    #integral = np.sum(h.view().value) * np.diff(h.axes[0].edges)[0] ###1 integral of bin heights (current)
+    #integral = np.sum(h.view().value)                               ###2 sum of bin heights (no dx element)
+    #integral = np.sum(weights) * np.diff(h.axes[0].edges)[0]        ###3 integral of weights
+    integral = np.sum(h.view().value)
     
     l = ax.step(h.axes[0].edges[:-1], h.view().value / integral, where = 'post')
     ax.step(h.axes[0].edges[1:], h.view().value / integral, where = 'pre', color = l[0].get_color())

@@ -109,7 +109,11 @@ def calculate_shortest_distance(data):
     reconstructed_3p = ak.fill_none(ak.mask(data['daughters'][:,:,1:4], reconstructable_daughters),
                                     ak.Array([0,0,0]),axis = 1)
     
-    total_reconstructed_momentum_all_events = ak.sum(reconstructed_3p, axis = 1).to_numpy()
+    if 'Ev' in data.keys():
+        total_reconstructed_momentum_all_events = ak.sum(reconstructed_3p[reconstructable_position], axis = 1).to_numpy()
+        data['position'] = data['position'].reshape(len(data['weight']), 3)
+    else:
+        total_reconstructed_momentum_all_events = ak.sum(reconstructed_3p, axis = 1).to_numpy()
     total_reconstructed_momentum_usable = total_reconstructed_momentum_all_events[np.linalg.norm(total_reconstructed_momentum_all_events, axis = 1) > 0]
     
     shortest_distance = get_nearest_approach(data['position'][reconstructable_position], total_reconstructed_momentum_usable)

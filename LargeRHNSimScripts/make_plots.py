@@ -46,15 +46,15 @@ def add_endpoints(boost_hist):
     
     return extended_bins, extended_values, extended_weight
     
-def make_opening_histogram(data, params, outfile = None, ax = None, log = True):
+def make_opening_histogram(data, params, outfile = None, ax = None, log = True, line = '-', norm = False):
     flavour, mass, mixing_sq = params
     
     angles, weight_bool = calculate_opening_angle(data)
     weights = data['weight'][weight_bool]
     
-    nbins = int(np.max(angles) / 0.1 + 1)
+    nbins = int(np.pi / 0.2)
     
-    h = bh.Histogram(bh.axis.Regular(nbins,0, np.max(angles)), storage = bh.storage.Weight())
+    h = bh.Histogram(bh.axis.Regular(nbins,0, np.pi), storage = bh.storage.Weight())
     h.fill(angles, weight = weights)
     
     plot_bins, plot_vals, plot_weights = add_endpoints(h)
@@ -64,11 +64,17 @@ def make_opening_histogram(data, params, outfile = None, ax = None, log = True):
         add_labs = True
     else:
         add_labs = False
+        
+    if norm:
+        scaling = np.sum(plot_vals)
+    else:
+        scaling = 1
     
-    l = ax.step(plot_bins / np.pi, plot_vals, where = 'mid', 
+    l = ax.step(plot_bins / np.pi, plot_vals / scaling, where = 'mid', ls= line, lw = 2, 
                 #label = fr'RHN (Mass = {mass}, $\vert U_\{flavour[1:]} \vert^2$ = {mixing_sq:.3g})')
-                label = fr'RHN (Mass = {mass}, $\vert {flavour} \vert^2$ = {mixing_sq:.3g})')
-    ax.errorbar(plot_bins[1:-1] / np.pi, plot_vals[1:-1], yerr = np.sqrt(plot_weights[1:-1]), fmt = '.', color = l[0].get_color())
+                label = fr'RHN (M = {mass:.3g} GeV, $\vert U_e \vert^2$ = {mixing_sq:.3g})')
+    ax.errorbar(plot_bins[1:-1] / np.pi, plot_vals[1:-1] / scaling, yerr = np.sqrt(plot_weights[1:-1])/scaling, 
+                fmt = 'none', color = l[0].get_color(), lw = 2)
     
     if flavour == 'SMS':
         l[0].set_label(fr'SMS (Mass = {mass}, $\sin^2\theta = ${mixing_sq}')
@@ -86,19 +92,24 @@ def make_opening_histogram(data, params, outfile = None, ax = None, log = True):
     
     return ax
 
-def make_closest_histogram(data, params, outfile = None, ax = None, log = True):
+def make_closest_histogram(data, params, outfile = None, ax = None, log = True,line = '-', norm = False):
     flavour, mass, mixing_sq = params
     
     distances, reconstructable_bool = calculate_shortest_distance(data)
     weights = data['weight'][reconstructable_bool.to_numpy()]
     
-    nbins = int((np.max(distances) - np.min(distances)) / 10 + 1) #division is the width of each bin
+    nbins = 20 #division is the width of each bin
     
-    h = bh.Histogram(bh.axis.Regular(nbins, 0, np.max(distances)),\
+    h = bh.Histogram(bh.axis.Regular(nbins, 0, 200),\
                      storage = bh.storage.Weight())
     h.fill(distances, weight = weights)
     
     plot_bins, plot_vals, plot_weights = add_endpoints(h)
+    
+    if norm:
+        scaling = np.sum(plot_vals)
+    else:
+        scaling = 1
     
     if ax == None:
         fig, ax = plt.subplots(1,1)
@@ -106,10 +117,11 @@ def make_closest_histogram(data, params, outfile = None, ax = None, log = True):
         if log:
             ax.set_yscale('log')
     
-    l = ax.step(plot_bins, plot_vals, where = 'mid', 
+    l = ax.step(plot_bins, plot_vals / scaling, where = 'mid', linestyle = line, lw = 2,
                 #label = fr'RHN (Mass = {mass}, $\vert U_\{flavour[1:]} \vert^2$ = {mixing_sq:.3g})')
-                label = fr'RHN (Mass = {mass}, $\vert {flavour} \vert^2$ = {mixing_sq:.3g})')
-    ax.errorbar(plot_bins[1:-1], plot_vals[1:-1], yerr = np.sqrt(plot_weights[1:-1]), fmt = '.', color = l[0].get_color())
+                label = fr'RHN (M = {mass:.3g} GeV, $\vert U_e \vert^2$ = {mixing_sq:.3g})')
+    ax.errorbar(plot_bins[1:-1], plot_vals[1:-1]/scaling, yerr = np.sqrt(plot_weights[1:-1]) / scaling, 
+                fmt = 'none', color = l[0].get_color(), lw = 2)
     '''
     l = ax.step(h.axes[0].centers, h.view().value, where = 'mid',
                 label = fr'RHN (Mass = {mass}, $\vert {flavour} \vert^2$ = {mixing_sq:.5g})')
@@ -123,7 +135,7 @@ def make_closest_histogram(data, params, outfile = None, ax = None, log = True):
         
     return ax
 
-def make_phi_angle_histogram(data, params, outfile = None, ax = None, log = False):
+def make_phi_angle_histogram(data, params, outfile = None, ax = None, log = False, line = '-', norm = False):
     distances, reconstructable_bool = calculate_shortest_distance(data)
     weights = data['weight'][reconstructable_bool.to_numpy()]
     radii = np.linalg.norm(data['position'][reconstructable_bool.to_numpy()], axis = 1)
@@ -137,16 +149,22 @@ def make_phi_angle_histogram(data, params, outfile = None, ax = None, log = Fals
     
     plot_bins, plot_vals, plot_weights = add_endpoints(h)
     
+    if norm:
+        scaling = np.sum(plot_vals)
+    else:
+        scaling = 1
+    
     if ax == None:
         fig, ax = plt.subplots(1,1)
         format_plot(ax, 'Track Correction Angle', [r'Angle [$\pi$ rad]', 'Number of Vertices'])
         if log:
             ax.set_yscale('log')
             
-    l = ax.step(plot_bins / np.pi, plot_vals, where = 'mid', 
+    l = ax.step(plot_bins / np.pi, plot_vals / scaling, where = 'mid', linestyle = line, lw = 2,
                 #label = fr'RHN (Mass = {mass}, $\vert U_\{flavour[1:]} \vert^2$ = {mixing_sq:.3g})')
-                label = fr'RHN (Mass = {mass}, $\vert {flavour} \vert^2$ = {mixing_sq:.3g})')
-    ax.errorbar(plot_bins[1:-1] / np.pi, plot_vals[1:-1], yerr = np.sqrt(plot_weights[1:-1]), fmt = '.', color = l[0].get_color())
+                label = fr'RHN (M = {mass:.3g} GeV, $\vert U_e \vert^2$ = {mixing_sq:.3g})')
+    ax.errorbar(plot_bins[1:-1] / np.pi, plot_vals[1:-1] / scaling, yerr = np.sqrt(plot_weights[1:-1]) / scaling, 
+                fmt = 'none', color = l[0].get_color(), lw = 2)
     '''
     #Change to shift errorbars instead
     l = ax.step(h.axes[0].centers/np.pi, h.view().value, where = 'mid',
@@ -216,7 +234,7 @@ def compare_opening_closest(data, params, outfile = None, ax = None):
         #add_legend = True
     
     h = ax.hist2d(angles / np.pi, distance, bins = [20,20], weights = data['weight'],
-                  label = fr'RHN (Mass = {mass}, $\vert {flavour} \vert^2$ = {mixing_sq:.5g})',
+                  label = fr'RHN (M = {mass}, $\vert {flavour} \vert^2$ = {mixing_sq:.5g})',
                   norm = colours.LogNorm(clip = True))
     fig.colorbar(h[3], ax = ax, label = 'Number of Vertices')
     
