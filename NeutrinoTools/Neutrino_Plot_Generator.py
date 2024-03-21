@@ -10,14 +10,15 @@ import glob
 import matplotlib.pyplot as plt
 
 plt.style.use('science')
-plt.rcParams.update({'figure.figsize':(6,4), 'legend.frameon':True, 'font.size':14})
+plt.rcParams.update({'figure.figsize':(6,4), 'legend.frameon':True, 'font.size':14,
+                     'legend.fontsize':12, 'legend.handlelength': 1})
 
 def format_2d(ax):
     ax.set_xlabel(r'Opening Angle [$\pi$ rad]')
     ax.set_ylabel('Shortest distance')
     ax.set_title(r'MATHUSLA100 No Walls Geometry ($\int\mathcal{L}dt = 3000 fb^{-1}$)')
     
-def format_1d(ax, style, log = True):
+def format_1d(ax, style, log = False):
     ax.set_xlabel(style)
     ax.set_ylabel('Number of Vertices')
     ax.set_title(r'MATHUSLA100 No Walls Geometry ($\int\mathcal{L}dt = 3000 fb^{-1}$)')
@@ -34,6 +35,8 @@ def plot_opening(data_sets):
     
     format_1d(ax, r'Opening Angle [$\pi$ rad]')
     ax.set_xlim(0,1)
+    ax.set_ylim(0,0.13)
+    ax.legend()
     
     plt.savefig(f'../NeutrinoResults/Opening_Backgrounds_{params[0]}.pdf')
     plt.show()
@@ -48,6 +51,9 @@ def plot_recon(data_sets):
         neu.add_reconstruction_curve(data_sets[params], params, ax)
     
     format_1d(ax, r'Reconstruction Angle [$\pi$ rad]')
+    ax.set_xlim(0,1)
+    ax.set_ylim(0,0.07)
+    ax.legend()
     
     plt.savefig(f'../NeutrinoResults/Recon_Backgrounds_{params[0]}.pdf')
     plt.show()
@@ -62,6 +68,9 @@ def plot_closest(data_sets):
         neu.add_closest_curve(data_sets[params], params, ax)
     
     format_1d(ax, r'Shortest Distance to IP [m]')
+    ax.set_xlim(0,200)
+    ax.set_ylim(0,0.07)
+    ax.legend()
     
     plt.savefig(f'../NeutrinoResults/Closest_Backgrounds_{params[0]}.pdf')
     plt.show()    
@@ -76,21 +85,23 @@ def plot_cumulative(filenames):
     
     fig, ax = plt.subplots(1,1)
     neu.cumulative_opening_curve(data_sets, ax)
-    format_1d(ax, r'Opening Angle [$\pi$ rad]', legend = False)
+    format_1d(ax, r'Opening Angle [$\pi$ rad]')
+    ax.set_xlim(0,1)
     plt.savefig('../NeutrinoResults/Opening_Backgrounds_cumulative.pdf')
     plt.show()    
     plt.close()
     
     fig, ax = plt.subplots(1,1)
     neu.cumulative_closest_curve(data_sets, ax)
-    format_1d(ax, r'Shortest Distance to IP [m]', legend = False)
+    format_1d(ax, r'Shortest Distance to IP [m]')
     plt.savefig('../NeutrinoResults/Closest_Backgrounds_cumulative.pdf')
     plt.show()    
     plt.close()
     
     fig, ax = plt.subplots(1,1)
     neu.cumulative_reconstruction_curve(data_sets, ax)
-    format_1d(ax, r'Reconstruction Angle [$\pi$ rad]', legend = False)
+    ax.set_ylim(0,0.26)
+    format_1d(ax, r'Reconstruction Angle [$\pi$ rad]')
     plt.savefig('../NeutrinoResults/Recon_Backgrounds_cumulative.pdf')
     plt.show()    
     plt.close()
@@ -110,20 +121,23 @@ def main(filenames):
     plot_closest(data_sets)
     
 if __name__ == '__main__':
+    '''
     filenames = glob.glob('../NeutrinoResults/n*.pickle')
     plot_cumulative(filenames)
+    '''
     
-    filenames = glob.glob('../NeutrinoResults/nue_*.pickle')
-    main(filenames)
+    #filenames = glob.glob('../NeutrinoResults/nue_*.pickle')
+    #main(filenames)
     
-    filenames = glob.glob('../NeutrinoResults/nuebar_*.pickle')
-    main(filenames)
+    #filenames = glob.glob('../NeutrinoResults/nuebar_*.pickle')
+    #main(filenames)
     
     filenames = glob.glob('../NeutrinoResults/numu_*.pickle')
     main(filenames)
     
-    filenames = glob.glob('../NeutrinoResults/numubar_*.pickle')
-    main(filenames)
+    #filenames = glob.glob('../NeutrinoResults/numubar_*.pickle')
+    #main(filenames)
+    
             
     
     

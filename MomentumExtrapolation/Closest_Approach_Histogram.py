@@ -79,12 +79,15 @@ def proj(x,y):
     '''Projects x onto y'''
     return separate_dot(x,y) * y.T / np.linalg.norm(y, axis = 1)**2
 
-def get_nearest_approach(position, momentum):
+def get_nearest_approach(position, momentum, unitary = True):
     '''Calculates closest approach distance for a particle using perp distance formula'''
+    if unitary:
+        momentum = momentum / ak.sum(momentum**2)**0.5
+        
     projection = position - proj(position, momentum).T
     return np.linalg.norm(projection, axis = 1)
     
-def calculate_shortest_distance(data):
+def calculate_shortest_distance(data, track_thresh = 2):
     '''
     Calculates the shortest distance between a reconstructed track and the IP
 
@@ -104,17 +107,18 @@ def calculate_shortest_distance(data):
     #These are boolean masks which tell when events are reconstructable
     #Second line checks that the vertex has at least one reconstructed daughter
     reconstructable_daughters = get_reconstructable(data)
-    reconstructable_position = ak.sum(reconstructable_daughters, axis = 1) >= 1
+    reconstructable_position = ak.sum(reconstructable_daughters, axis = 1) >= track_thresh
     
     reconstructed_3p = ak.fill_none(ak.mask(data['daughters'][:,:,1:4], reconstructable_daughters),
                                     ak.Array([0,0,0]),axis = 1)
     
     if 'Ev' in data.keys():
-        total_reconstructed_momentum_all_events = ak.sum(reconstructed_3p[reconstructable_position], axis = 1).to_numpy()
+        total_reconstructed_momentum_usable = ak.sum(reconstructed_3p[reconstructable_position], axis = 1).to_numpy()
         data['position'] = data['position'].reshape(len(data['weight']), 3)
     else:
-        total_reconstructed_momentum_all_events = ak.sum(reconstructed_3p, axis = 1).to_numpy()
-    total_reconstructed_momentum_usable = total_reconstructed_momentum_all_events[np.linalg.norm(total_reconstructed_momentum_all_events, axis = 1) > 0]
+        total_reconstructed_momentum_usable = ak.sum(reconstructed_3p[reconstructable_position], axis = 1).to_numpy()
+        #total_reconstructed_momentum_usable = total_reconstructed_momentum_all_events[reconstructable_position]
+    #np.linalg.norm(total_reconstructed_momentum_all_events, axis = 1) > 0
     
     shortest_distance = get_nearest_approach(data['position'][reconstructable_position], total_reconstructed_momentum_usable)
     

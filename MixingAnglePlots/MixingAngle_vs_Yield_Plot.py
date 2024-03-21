@@ -12,15 +12,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-sys.path.insert(0, '../MATHUSLA_FastSim/')
+sys.path.insert(0, '../../MATHUSLA_FastSim/')
 import DetectorSimulation.Detector as Detector
 import DetectorSimulation.llp_gun_new as lg
 from Helpers.functions import *
 
-sys.path.insert(0,'../FastSim_Additions/')
+sys.path.insert(0,'../../FastSim_Additions/')
 from Additions import initiate_detector
 
-def get_ctaus(mass, mixing_sq, length_file = '../SimulationData/RHNctauUe.dat'):
+def get_ctaus(mass, mixing_sq, length_file = '../../SimulationData/RHNctauUe.dat'):
     '''
     Converts mass to ctau for a given mixing angle (input mixing angle squared)
 
@@ -47,7 +47,7 @@ def get_ctaus(mass, mixing_sq, length_file = '../SimulationData/RHNctauUe.dat'):
     
     #Computes for U=1 then corrects for chosen parameter
     length_U1 = float(interp_mass(mass))
-    lengths = length_U1 / mixing
+    lengths = length_U1 / mixing_sq
     return lengths
 
 def decay_in_MATHUSLA(detector_benchmark, p_pos):
@@ -181,8 +181,8 @@ def make_plot(mixing_sq, num_decays, num_events, filename = 'MixingAngle_decay_p
     plt.show()
     plt.close()
 
-def main(fv_file = '../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.316228.csv',
-         length_file = '../SimulationData/RHNctauUe.dat',
+def main(fv_file = '../../SimulationData/RHN_Ue_LLPweight4vectorBmesonlist_mN_0.316228.csv',
+         length_file = '../../SimulationData/RHNctauUe.dat',
          image_file = 'MixingAngle_decay_probability.png'):
     #Particle Information
     fv_path = os.path.join(os.getcwd(), fv_file)

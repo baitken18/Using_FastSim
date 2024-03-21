@@ -57,7 +57,7 @@ def organize_sim_info(fv_file, length_file, product_file, param_card_file = '../
     return [fv_path, prod_path, ctau, mass, detector_benchmark, 50000]
 
 
-def isolate_usable_3p(data, hit_threshold = 4):
+def isolate_usable_3p(data, hit_threshold = 4, track_threshold = 2):
     '''
     Gives events which have a defined opening angle
 
@@ -81,7 +81,7 @@ def isolate_usable_3p(data, hit_threshold = 4):
     #Mask makes events which are false None types
     array_with_none_events = ak.mask(data['daughters'][:,:,1:4], reconstructable_daughters)
     #This makes a bool array for which events have at least two reconstructable tracks, so have defined opening angle
-    bool_slicing_none_events = ak.sum(~ak.is_none(array_with_none_events, axis = 1), axis = 1) >= 2
+    bool_slicing_none_events = ak.sum(~ak.is_none(array_with_none_events, axis = 1), axis = 1) >= track_threshold
     
     return ak.drop_none(array_with_none_events[bool_slicing_none_events]), bool_slicing_none_events
     
@@ -102,7 +102,7 @@ def eliminate_records(array_with_records):
     
     return build.snapshot()
     
-def calculate_opening_angle(data):
+def calculate_opening_angle(data, track_thresh):
     '''
     Calculates the opening angle for all simulated events in data
 
@@ -120,7 +120,7 @@ def calculate_opening_angle(data):
 
     '''
 
-    usable_3p, weight_bool = isolate_usable_3p(data)
+    usable_3p, weight_bool = isolate_usable_3p(data, track_threshold = track_thresh)
     
     #Finds all possible opening angle calculation pairs
     #Maps n x m x 3 array to n x mC2 x 2 x 3 array
@@ -128,11 +128,13 @@ def calculate_opening_angle(data):
     
     #Maps n x mC2 x 2 x 3 array to n x mC2 array
     dot_of_combs = ak.sum(ak.prod(all_combs, axis = 2), axis = 2)
+
     #Mapes n x mC2 x 2 x 3 array to n x mC2 x 2 array
     norm_of_combs = np.sqrt(ak.sum(all_combs**2, axis = 3))
     
     #Maps n x mC2 and n x mC2 x 2 array to n x mC2 array
     all_theta = np.arccos(dot_of_combs / ak.prod(norm_of_combs, axis = 2))
+    
     
     #Gives maximum opening angle
     return ak.max(all_theta, axis = 1).to_numpy(), weight_bool
